@@ -2,16 +2,23 @@ package com.tecacet.fluidbatch;
 
 import org.springframework.batch.item.ItemProcessor;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.function.Function;
 
 public class MultiTaskProcessor<I,O> implements ItemProcessor<I,O> {
 
-    public MultiTaskProcessor(List<Function> mappers) {
-        this.mappers = mappers;
-    }
-
     private final List<Function> mappers;
+
+    public MultiTaskProcessor(
+            Function<I, ?> first,
+            Function... rest
+    ) {
+        this.mappers = new ArrayList<>();
+        this.mappers.add(first);
+        Arrays.stream(rest).forEach(mapper -> mappers.add(mapper));
+    }
 
     @Override
     public O process(I input) throws Exception {
