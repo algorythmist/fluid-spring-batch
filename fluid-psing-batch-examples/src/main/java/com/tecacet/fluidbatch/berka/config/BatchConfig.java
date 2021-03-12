@@ -3,9 +3,8 @@ package com.tecacet.fluidbatch.berka.config;
 import com.tecacet.fluidbatch.FlatFileReaderBuilder;
 import com.tecacet.fluidbatch.FluidBatchConfig;
 import com.tecacet.fluidbatch.InsertSqlBuilder;
-import com.tecacet.fluidbatch.NoRetryPolicy;
 import com.tecacet.fluidbatch.berka.dto.Transaction;
-import com.tecacet.fluidbatch.berka.etl.TransactionProcessor;
+import com.tecacet.fluidbatch.berka.etl.DemoTransactionProcessor;
 import com.tecacet.fluidbatch.berka.etl.TruncateTableTasklet;
 
 import org.springframework.batch.core.Job;
@@ -33,14 +32,15 @@ import javax.sql.DataSource;
 @Import(FluidBatchConfig.class)
 public class BatchConfig {
 
-    @Autowired
-    private DataSource dataSource;
 
     @Autowired
     private TruncateTableTasklet truncateTableTasklet;
 
     @Autowired
-    private TransactionProcessor transactionProcessor;
+    private DemoTransactionProcessor transactionProcessor;
+
+    @Autowired
+    private DataSource dataSource;
 
     @Bean
     Step truncateTableStep(StepBuilderFactory stepBuilderFactory) {

@@ -11,7 +11,7 @@ import java.time.temporal.UnsupportedTemporalTypeException;
 
 @Component
 @StepScope
-public class TransactionProcessor implements ItemProcessor<Transaction, Transaction> {
+public class DemoTransactionProcessor implements ItemProcessor<Transaction, Transaction> {
 
     private int count = 0;
 
