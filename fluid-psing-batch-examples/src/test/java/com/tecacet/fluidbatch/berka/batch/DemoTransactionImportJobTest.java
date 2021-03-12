@@ -17,11 +17,10 @@ import org.springframework.test.context.ActiveProfiles;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @SpringBootTest
 @ActiveProfiles("test")
-public class TransactionImportJobTest {
+public class DemoTransactionImportJobTest {
 
     @Autowired
     private JobLauncher jobLauncher;
@@ -34,7 +33,7 @@ public class TransactionImportJobTest {
         JobParametersBuilder builder = new JobParametersBuilder();
         JobParameters parameters = builder
                 .addString("filename", "account_2504.csv")
-                .addString("tableName", "transaction")
+                .addString("tableName", "demo_transaction")
                 .toJobParameters();
         JobExecution execution = jobLauncher.run(transactionImportJob, parameters);
 

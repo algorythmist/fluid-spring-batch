@@ -3,7 +3,7 @@ package com.tecacet.fluidbatch.berka.config;
 import com.tecacet.fluidbatch.FlatFileReaderBuilder;
 import com.tecacet.fluidbatch.FluidBatchConfig;
 import com.tecacet.fluidbatch.InsertSqlBuilder;
-import com.tecacet.fluidbatch.berka.dto.Transaction;
+import com.tecacet.fluidbatch.berka.dto.DemoTransaction;
 import com.tecacet.fluidbatch.berka.etl.DemoTransactionProcessor;
 import com.tecacet.fluidbatch.berka.etl.TruncateTableTasklet;
 
@@ -60,8 +60,8 @@ public class BatchConfig {
 
     @Bean
     @StepScope
-    FlatFileItemReader<Transaction> transactionFileReader(@Value("#{jobParameters['filename']}") String filename) {
-        return FlatFileReaderBuilder.getInstance(Transaction.class)
+    FlatFileItemReader<DemoTransaction> transactionFileReader(@Value("#{jobParameters['filename']}") String filename) {
+        return FlatFileReaderBuilder.getInstance(DemoTransaction.class)
                 .setDelimiter(",")
                 .setProperties(new String[] {"X", "transactionId", "accountId", "date", "type", "X", "amount"})
                 .setFilename(filename)
@@ -72,7 +72,7 @@ public class BatchConfig {
 
     @Bean
     @StepScope
-    JdbcBatchItemWriter<Transaction> transactionBatchWriter(@Value("#{jobParameters['tableName']}") String tableName) {
+    JdbcBatchItemWriter<DemoTransaction> transactionBatchWriter(@Value("#{jobParameters['tableName']}") String tableName) {
         String[] columns = {"transaction_id", "account_id", "transaction_type", "transaction_date", "transaction_amount"};
         String[] properties = {"transactionId", "accountId", "type", "date", "amount"};
         return new JdbcBatchItemWriterBuilder()
@@ -85,10 +85,10 @@ public class BatchConfig {
 
     @Bean
     Step importTransactionsStep(StepBuilderFactory stepBuilderFactory,
-            FlatFileItemReader<Transaction> transactionFileReader,
-            JdbcBatchItemWriter<Transaction> transactionBatchWriter) {
+            FlatFileItemReader<DemoTransaction> transactionFileReader,
+            JdbcBatchItemWriter<DemoTransaction> transactionBatchWriter) {
         return stepBuilderFactory.get("importTransactionsStep")
-                .<Transaction, Transaction>chunk(100)
+                .<DemoTransaction, DemoTransaction>chunk(100)
                 .reader(transactionFileReader)
                 .processor(transactionProcessor)
                 .writer(transactionBatchWriter)

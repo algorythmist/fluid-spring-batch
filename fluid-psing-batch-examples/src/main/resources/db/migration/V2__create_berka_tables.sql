@@ -17,3 +17,14 @@ create table client_account(
     client_id bigint not null,
     account_id bigint not null
 );
+
+create table transaction(
+     id bigint not null,
+     account_id bigint not null,
+     transaction_date date not null,
+     transaction_type varchar(255),
+     operation varchar(255),
+     category varchar(255),
+     transaction_amount decimal(32,6),
+     balance_amount decimal(32,6)
+);

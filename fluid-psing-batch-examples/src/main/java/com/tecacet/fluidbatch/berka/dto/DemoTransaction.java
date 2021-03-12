@@ -8,7 +8,7 @@ import java.time.LocalDate;
 
 @Getter
 @Setter
-public class Transaction {
+public class DemoTransaction {
 
     private String transactionId;
 

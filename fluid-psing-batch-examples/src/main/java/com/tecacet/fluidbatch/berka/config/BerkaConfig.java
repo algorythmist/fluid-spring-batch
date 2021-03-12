@@ -6,8 +6,7 @@ import com.tecacet.fluidbatch.berka.etl.AccountProcessor;
 import com.tecacet.fluidbatch.berka.etl.ClientAccountProcessor;
 import com.tecacet.fluidbatch.berka.etl.ClientProcessor;
 import com.tecacet.fluidbatch.berka.dto.BerkaClient;
-import com.tecacet.fluidbatch.berka.dto.Transaction;
-import com.tecacet.fluidbatch.berka.repository.ClientRepository;
+import com.tecacet.fluidbatch.berka.dto.DemoTransaction;
 
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
@@ -62,13 +61,13 @@ public class BerkaConfig {
     }
 
     @Bean
-    ItemReader<Transaction> transactionItemReader(PagingQueryProvider transactionQueryProvider) {
-        return new JdbcPagingItemReaderBuilder<Transaction>()
+    ItemReader<DemoTransaction> transactionItemReader(PagingQueryProvider transactionQueryProvider) {
+        return new JdbcPagingItemReaderBuilder<DemoTransaction>()
                 .name("transactionItemReader")
                 .dataSource(berkaDataSource)
                 .pageSize(1000)
                 .queryProvider(transactionQueryProvider)
-                .rowMapper(new BeanPropertyRowMapper<>(Transaction.class))
+                .rowMapper(new BeanPropertyRowMapper<>(DemoTransaction.class))
                 .build();
     }
 

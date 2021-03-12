@@ -1,4 +1,4 @@
-create table transaction(
+create table demo_transaction(
     transaction_id varchar(255),
     account_id varchar(255),
     transaction_date date,
