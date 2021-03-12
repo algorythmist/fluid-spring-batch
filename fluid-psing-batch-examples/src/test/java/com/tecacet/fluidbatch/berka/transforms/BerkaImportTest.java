@@ -1,5 +1,7 @@
 package com.tecacet.fluidbatch.berka.transforms;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import com.tecacet.fluidbatch.JobExecutor;
 import com.tecacet.fluidbatch.berka.entity.ClientEntity;
 import com.tecacet.fluidbatch.berka.repository.ClientRepository;
@@ -32,7 +34,7 @@ class BerkaImportTest {
         System.out.println(jobExecution);
 
         List<ClientEntity> clients = clientRepository.findAll();
-        System.out.println(clients.size());
+        assertEquals(5369, clients.size());
         System.out.println(clients.get(100));
     }
 
@@ -47,6 +49,13 @@ class BerkaImportTest {
     void testClientAccount() throws JobExecutionException {
         JobExecution jobExecution =
                 jobExecutor.execute("clientAccountImportJob", Collections.emptyMap());
+        System.out.println(jobExecution);
+    }
+
+    @Test
+    void berkaEtlJob() throws JobExecutionException {
+        JobExecution jobExecution =
+                jobExecutor.execute("berkaEtlJob", Collections.emptyMap());
         System.out.println(jobExecution);
     }
 

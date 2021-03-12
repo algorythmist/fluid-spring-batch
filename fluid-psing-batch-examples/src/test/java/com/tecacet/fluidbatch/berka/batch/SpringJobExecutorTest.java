@@ -25,14 +25,16 @@ class SpringJobExecutorTest {
     @Test
     void execute() throws JobExecutionException {
         JobExecution jobExecution =
-                jobExecutor.execute("simpleTaskletJob", Collections.singletonMap("tableName", "transaction"));
+                jobExecutor.execute("simpleTaskletJob",
+                        Collections.singletonMap("tableName", "demo_transaction"));
         assertEquals(ExitStatus.COMPLETED, jobExecution.getExitStatus());
     }
 
     @Test
     void executeMissingJob() {
         try {
-            jobExecutor.execute("missingJob", Collections.singletonMap("tableName", "transaction"));
+            jobExecutor.execute("missingJob",
+                    Collections.singletonMap("tableName", "demo_transaction"));
             fail();
         } catch (JobExecutionException jee) {
             assertEquals("There is no job named missingJob", jee.getMessage());

@@ -20,12 +20,12 @@ import org.springframework.test.context.ActiveProfiles;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @SpringBootTest
 @ActiveProfiles("test")
 public class SimpleTaskletJobTest {
 
+    private static final String TRANSACTION_TABLE = "demo_transaction";
     @Autowired
     private JobLauncher jobLauncher;
 
@@ -36,7 +36,7 @@ public class SimpleTaskletJobTest {
     void jobTest() throws Exception {
         JobParametersBuilder builder = new JobParametersBuilder();
         JobParameters parameters1 = builder
-                .addString("tableName", "transaction")
+                .addString("tableName", TRANSACTION_TABLE)
                 .toJobParameters();
         JobExecution execution = jobLauncher.run(simpleTaskletJob, parameters1);
 
@@ -50,12 +50,13 @@ public class SimpleTaskletJobTest {
         //rerun fails
         try {
             JobParameters parameters2 = new JobParametersBuilder()
-                    .addString("tableName", "transaction")
+                    .addString("tableName", TRANSACTION_TABLE)
                     .toJobParameters();
             jobLauncher.run(simpleTaskletJob, parameters2);
+            fail();
         } catch (JobInstanceAlreadyCompleteException e) {
             String message = e.getMessage();
-            assertTrue(message.contains("A job instance already exists and is complete for parameters={tableName=transaction}"));
+            assertTrue(message.contains("A job instance already exists and is complete for parameters="));
         }
     }
 
@@ -64,14 +65,14 @@ public class SimpleTaskletJobTest {
             throws JobParametersInvalidException, JobExecutionAlreadyRunningException, JobRestartException, JobInstanceAlreadyCompleteException {
         JobParametersBuilder builder = new JobParametersBuilder();
         JobParameters parameters1 = builder
-                .addString("tableName", "transaction")
+                .addString("tableName", TRANSACTION_TABLE)
                 .addLong("currentTime", System.currentTimeMillis())
                 .toJobParameters();
         JobExecution execution1 = jobLauncher.run(simpleTaskletJob, parameters1);
         assertEquals(ExitStatus.COMPLETED, execution1.getExitStatus());
 
         JobParameters parameters2 = new JobParametersBuilder()
-                .addString("tableName", "transaction")
+                .addString("tableName", TRANSACTION_TABLE)
                 .addLong("currentTime", System.currentTimeMillis())
                 .toJobParameters();
         JobExecution execution2 = jobLauncher.run(simpleTaskletJob, parameters2);

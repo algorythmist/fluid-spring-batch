@@ -15,10 +15,11 @@ create table account (
 create table client_account(
     id bigint not null,
     client_id bigint not null,
-    account_id bigint not null
+    account_id bigint not null,
+    owner_type varchar(255)
 );
 
-create table transaction(
+create table account_transaction (
      id bigint not null,
      account_id bigint not null,
      transaction_date date not null,
@@ -26,5 +27,6 @@ create table transaction(
      operation varchar(255),
      category varchar(255),
      transaction_amount decimal(32,6),
-     balance_amount decimal(32,6)
+     balance_amount decimal(32,6),
+     bank char(10)
 );

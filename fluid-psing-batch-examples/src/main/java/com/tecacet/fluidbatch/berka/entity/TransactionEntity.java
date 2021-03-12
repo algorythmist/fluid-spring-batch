@@ -1,10 +1,11 @@
 package com.tecacet.fluidbatch.berka.entity;
 
 import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.UUID;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -16,8 +17,10 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
 @Entity
-@Table(name = "transaction")
+@Table(name = "account_transaction")
 @Getter
+@Setter
+@ToString
 public class TransactionEntity {
 
     public enum Type { DEBIT, CREDIT }
@@ -27,7 +30,8 @@ public class TransactionEntity {
         CASH_WITHDRAWAL,
         CC_PAYMENT,
         FROM_BANK,
-        TO_BANK
+        TO_BANK,
+        OTHER
     }
 
     public enum Category {
@@ -42,8 +46,7 @@ public class TransactionEntity {
     }
 
     @Id
-    private UUID id;
-
+    private long id;
 
     @ManyToOne
     @JoinColumn(name = "account_id")

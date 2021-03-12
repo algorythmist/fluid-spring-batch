@@ -16,6 +16,7 @@
     <properties>
         <maven.compiler.source>8</maven.compiler.source>
         <maven.compiler.target>8</maven.compiler.target>
+        <mariadb-java-client.version>2.7.2</mariadb-java-client.version>
     </properties>
 
     <dependencies>
@@ -52,7 +53,12 @@
         <dependency>
             <groupId>org.mariadb.jdbc</groupId>
             <artifactId>mariadb-java-client</artifactId>
-            <version>2.7.2</version>
+            <version>${mariadb-java-client.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.xerial</groupId>
+            <artifactId>sqlite-jdbc</artifactId>
+            <version>3.34.0</version>
         </dependency>
         <!-- Test -->
         <dependency>
