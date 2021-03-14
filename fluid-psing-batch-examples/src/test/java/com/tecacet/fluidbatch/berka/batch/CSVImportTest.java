@@ -14,38 +14,26 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 
-import java.util.ArrayList;
-import java.util.List;
-
 @SpringBootTest
 @ActiveProfiles("test")
-public class DemoTransactionImportJobTest {
+class CSVImportTest {
 
     @Autowired
     private JobLauncher jobLauncher;
 
     @Autowired
-    private Job transactionImportJob;
+    private Job importJob;
 
     @Test
     void jobTest() throws Exception {
         JobParametersBuilder builder = new JobParametersBuilder();
-        JobParameters parameters = builder
-                .addString("filename", "account_2504.csv")
-                .addString("tableName", "demo_transaction")
-                .toJobParameters();
-        JobExecution execution = jobLauncher.run(transactionImportJob, parameters);
-
-        List<StepExecution> stepExecutions = new ArrayList<>(execution.getStepExecutions());
-        assertEquals(1, stepExecutions.size());
-        StepExecution stepExecution = stepExecutions.get(0);
-
+        JobParameters parameters = builder.toJobParameters();
+        JobExecution execution = jobLauncher.run(importJob, parameters);
         assertEquals(ExitStatus.COMPLETED, execution.getExitStatus());
-        assertEquals(340, stepExecution.getReadCount());
-        assertEquals(339, stepExecution.getWriteCount());
-        assertEquals(1, stepExecution.getSkipCount());
-        assertEquals(4, stepExecution.getCommitCount());
+        StepExecution stepExecution = execution.getStepExecutions().stream().findFirst().get();
         assertEquals(ExitStatus.COMPLETED, stepExecution.getExitStatus());
-
+        assertEquals(340, stepExecution.getReadCount());
+        assertEquals(340, stepExecution.getWriteCount());
     }
+
 }

@@ -56,15 +56,6 @@
             <artifactId>mariadb-java-client</artifactId>
             <version>${mariadb-java-client.version}</version>
         </dependency>
-        <dependency>
-            <groupId>org.xerial</groupId>
-            <artifactId>sqlite-jdbc</artifactId>
-            <version>${sqlite-jdbc.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>mysql</groupId>
-            <artifactId>mysql-connector-java</artifactId>
-        </dependency>
 
         <!-- Test -->
         <dependency>

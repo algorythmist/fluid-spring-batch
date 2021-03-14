@@ -24,7 +24,7 @@ public class TruncateTableTasklet implements Tasklet {
     public RepeatStatus execute(StepContribution stepContribution, ChunkContext chunkContext) {
         String tableName = chunkContext.getStepContext().getStepExecution()
                 .getJobParameters().getString("tableName");
-        jdbcTemplate.execute("DELETE FROM " + tableName);
+        jdbcTemplate.execute("TRUNCATE TABLE " + tableName);
         return RepeatStatus.FINISHED;
     }
 }
