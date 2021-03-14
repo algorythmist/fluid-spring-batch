@@ -5,21 +5,17 @@ import com.tecacet.fluidbatch.berka.entity.AccountEntity;
 import com.tecacet.fluidbatch.berka.entity.TransactionEntity;
 import com.tecacet.fluidbatch.berka.repository.AccountRepository;
 
-import org.springframework.batch.core.JobExecution;
 import org.springframework.batch.core.StepExecution;
 import org.springframework.batch.core.annotation.BeforeStep;
 import org.springframework.batch.core.configuration.annotation.StepScope;
-import org.springframework.batch.item.ExecutionContext;
 import org.springframework.batch.item.ItemProcessor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-import java.util.List;
 import java.util.Map;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
 
 @Component
@@ -30,22 +26,20 @@ public class TransactionProcessor implements ItemProcessor<BerkaTransaction, Tra
 
     private final AccountRepository accountRepository;
 
-    private ExecutionContext context;
+    @Autowired
+    private TransientDataStore transientDataStore;
 
     @BeforeStep
     public void beforeStep(StepExecution stepExecution) {
-        JobExecution jobExecution = stepExecution.getJobExecution();
-        context = jobExecution.getExecutionContext();
-        if (!context.containsKey("accounts")) {
-            List<AccountEntity> accounts = accountRepository.findAll();
-            context.put("accounts", accounts.stream().collect(Collectors.toMap(AccountEntity::getId, Function.identity())));
+
+        if (transientDataStore.getAccounts().isEmpty()) {
+            transientDataStore.storeData();
         }
     }
 
-
     @Override
     public TransactionEntity process(BerkaTransaction berkaTransaction) {
-        Map<Long, AccountEntity> accounts = (Map<Long, AccountEntity>) context.get("accounts");
+        Map<Long, AccountEntity> accounts = transientDataStore.getAccounts();
         AccountEntity account = accounts.get(berkaTransaction.getAccountId());
         if (account == null) {
             log.error("Missing account for " + berkaTransaction.getAccount());
@@ -63,19 +57,19 @@ public class TransactionProcessor implements ItemProcessor<BerkaTransaction, Tra
 
     private TransactionEntity.Type decodeType(String text) {
         String type = text.toUpperCase();
-        switch(type) {
+        switch (type) {
             case "PRIJEM":
                 return TransactionEntity.Type.CREDIT;
             case "VYDAJ":
                 return TransactionEntity.Type.DEBIT;
             default:
-                throw new IllegalArgumentException("Unexpected transaction type "+type);
+                throw new IllegalArgumentException("Unexpected transaction type " + type);
         }
     }
 
     private TransactionEntity.Operation decodeOperation(String text) {
         String operation = text.toUpperCase();
-        switch(operation) {
+        switch (operation) {
             case "VYBER KARTOU":
                 return TransactionEntity.Operation.CC_PAYMENT;
             case "VKLAD":
@@ -93,7 +87,7 @@ public class TransactionProcessor implements ItemProcessor<BerkaTransaction, Tra
 
     private TransactionEntity.Category decodeCategory(String text) {
         String category = text.toUpperCase();
-        switch(category) {
+        switch (category) {
             case "POJISTNE":
                 return TransactionEntity.Category.INSURANCE_PAYMENT;
             case "SLUZBY":

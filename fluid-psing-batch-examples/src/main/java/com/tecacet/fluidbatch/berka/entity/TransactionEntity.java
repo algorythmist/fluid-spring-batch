@@ -59,11 +59,9 @@ public class TransactionEntity {
     @Enumerated(EnumType.STRING)
     private Type type;
 
-    @Column
     @Enumerated(EnumType.STRING)
     private Operation operation;
 
-    @Column
     @Enumerated(EnumType.STRING)
     private Category category;
 
@@ -73,6 +71,5 @@ public class TransactionEntity {
     @Column(name = "balance_amount")
     private BigDecimal balance;
 
-    @Column
     private String bank;
 }

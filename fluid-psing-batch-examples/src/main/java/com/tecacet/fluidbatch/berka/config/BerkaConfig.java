@@ -150,7 +150,7 @@ public class BerkaConfig {
         return new JdbcPagingItemReaderBuilder<I>()
                 .name(clazz.getName() + "Reader")
                 .dataSource(berkaDataSource)
-                .pageSize(1000)
+                .pageSize(5000)
                 .selectClause(select)
                 .fromClause(from)
                 .sortKeys(Collections.singletonMap(sortColumn, Order.DESCENDING))
@@ -177,8 +177,8 @@ public class BerkaConfig {
             ItemReader<I> reader,
             ItemProcessor<I, O> processor,
             StepExecutionListener listener) {
-        SimpleStepBuilder stepBuilder = stepBuilderFactory.get(name)
-                .<I, O>chunk(1000)
+        SimpleStepBuilder<I,O> stepBuilder = stepBuilderFactory.get(name)
+                .<I, O>chunk(5000)
                 .reader(reader)
                 .processor(processor)
                 .writer(jpaItemWriter());

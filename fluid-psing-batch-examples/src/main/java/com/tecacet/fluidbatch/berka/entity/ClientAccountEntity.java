@@ -5,6 +5,8 @@ import lombok.Setter;
 import lombok.ToString;
 
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
@@ -33,5 +35,6 @@ public class ClientAccountEntity {
     @JoinColumn(name = "account_id")
     private AccountEntity account;
 
+    @Enumerated(EnumType.STRING)
     private OwnerType ownerType;
 }
