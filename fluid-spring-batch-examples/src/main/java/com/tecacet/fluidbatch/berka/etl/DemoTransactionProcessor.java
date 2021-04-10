@@ -19,9 +19,8 @@ public class DemoTransactionProcessor implements ItemProcessor<DemoTransaction, 
     public DemoTransaction process(DemoTransaction transaction) throws UnsupportedTemporalTypeException {
         count++;
         if (count == 110) {
-            throw new UnsupportedTemporalTypeException("You screwed up!");
+            throw new UnsupportedTemporalTypeException("This record failed!");
         }
-
         return transaction;
     }
 }

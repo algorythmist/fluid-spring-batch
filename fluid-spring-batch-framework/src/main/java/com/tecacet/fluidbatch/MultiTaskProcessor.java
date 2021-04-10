@@ -7,23 +7,22 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.function.Function;
 
-public class MultiTaskProcessor<I,O> implements ItemProcessor<I,O> {
+public class MultiTaskProcessor<I, O> implements ItemProcessor<I, O> {
 
     private final List<Function> mappers;
 
     public MultiTaskProcessor(
             Function<I, ?> first,
-            Function... rest
-    ) {
+            Function... rest) {
         this.mappers = new ArrayList<>();
         this.mappers.add(first);
-        Arrays.stream(rest).forEach(mapper -> mappers.add(mapper));
+        mappers.addAll(Arrays.asList(rest));
     }
 
     @Override
-    public O process(I input) throws Exception {
+    public O process(I input) {
         Object current = input;
-        for (Function mapper: mappers) {
+        for (Function mapper : mappers) {
             current = mapper.apply(current);
             if (current == null) {
                 return null;

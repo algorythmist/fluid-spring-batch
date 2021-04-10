@@ -23,7 +23,6 @@ public class SpringJobExecutor implements JobExecutor {
         jobsByName = jobBeans.stream().collect(Collectors.toMap(Job::getName, Function.identity()));
     }
 
-
     @Override
     public JobExecution execute(String jobName, Map<String, Object> jobParameters)
             throws JobExecutionException {
