@@ -1,4 +1,4 @@
-package com.tecacet.fluidbatch.berka.dto;
+package com.tecacet.fluidbatch.examples.dto;
 
 import lombok.Getter;
 import lombok.Setter;

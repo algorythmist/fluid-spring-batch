@@ -1,11 +1,11 @@
-package com.tecacet.fluidbatch.berka.config;
+package com.tecacet.fluidbatch.examples.config;
 
 import com.tecacet.fluidbatch.FlatFileReaderBuilder;
 import com.tecacet.fluidbatch.FluidBatchConfig;
 import com.tecacet.fluidbatch.InsertSqlBuilder;
-import com.tecacet.fluidbatch.berka.dto.DemoTransaction;
-import com.tecacet.fluidbatch.berka.etl.DemoTransactionProcessor;
-import com.tecacet.fluidbatch.berka.etl.TruncateTableTasklet;
+import com.tecacet.fluidbatch.examples.dto.DemoTransaction;
+import com.tecacet.fluidbatch.examples.batch.DemoTransactionProcessor;
+import com.tecacet.fluidbatch.examples.batch.TruncateTableTasklet;
 
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;

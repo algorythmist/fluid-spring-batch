@@ -1,4 +1,4 @@
-package com.tecacet.fluidbatch.berka;
+package com.tecacet.fluidbatch.examples;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

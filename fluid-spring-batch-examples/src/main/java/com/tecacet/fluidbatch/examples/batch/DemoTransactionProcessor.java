@@ -1,7 +1,7 @@
-package com.tecacet.fluidbatch.berka.etl;
+package com.tecacet.fluidbatch.examples.batch;
 
 
-import com.tecacet.fluidbatch.berka.dto.DemoTransaction;
+import com.tecacet.fluidbatch.examples.dto.DemoTransaction;
 
 import org.springframework.batch.core.configuration.annotation.StepScope;
 import org.springframework.batch.item.ItemProcessor;

@@ -1,4 +1,4 @@
-package com.tecacet.fluidbatch.berka;
+package com.tecacet.fluidbatch.examples;
 
 
 import org.junit.jupiter.api.Test;

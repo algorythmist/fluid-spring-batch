@@ -1,4 +1,4 @@
-package com.tecacet.fluidbatch.berka.config;
+package com.tecacet.fluidbatch.examples.config;
 
 import com.zaxxer.hikari.HikariDataSource;
 

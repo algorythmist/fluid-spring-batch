@@ -1,4 +1,4 @@
-package com.tecacet.fluidbatch.berka.batch;
+package com.tecacet.fluidbatch.examples.batch;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 

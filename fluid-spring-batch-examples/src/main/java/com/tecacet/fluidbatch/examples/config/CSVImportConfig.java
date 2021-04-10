@@ -1,7 +1,7 @@
-package com.tecacet.fluidbatch.berka.config;
+package com.tecacet.fluidbatch.examples.config;
 
 import com.tecacet.fluidbatch.FlatFileReaderBuilder;
-import com.tecacet.fluidbatch.berka.dto.BerkaTransaction;
+import com.tecacet.fluidbatch.examples.dto.BerkaTransaction;
 
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;

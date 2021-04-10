@@ -1,4 +1,4 @@
-package com.tecacet.fluidbatch.berka.etl;
+package com.tecacet.fluidbatch.examples.batch;
 
 import org.springframework.batch.core.StepContribution;
 import org.springframework.batch.core.scope.context.ChunkContext;
