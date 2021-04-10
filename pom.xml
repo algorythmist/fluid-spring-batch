@@ -7,7 +7,7 @@
 
     <modules>
         <module>fluid-spring-batch-framework</module>
-        <module>fluid-psing-batch-examples</module>
+        <module>fluid-spring-batch-examples</module>
     </modules>
 
     <groupId>com.tecacet</groupId>
