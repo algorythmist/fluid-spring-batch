@@ -13,7 +13,6 @@ import javax.annotation.Resource;
 import javax.sql.DataSource;
 
 @SpringBootTest
-@ActiveProfiles("test")
 class SecondarySourceTest {
 
     @Resource(name = "secondaryDataSource")

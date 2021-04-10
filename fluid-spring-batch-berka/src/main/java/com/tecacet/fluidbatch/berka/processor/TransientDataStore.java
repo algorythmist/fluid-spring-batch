@@ -1,4 +1,4 @@
-package com.tecacet.fluidbatch.berka.etl;
+package com.tecacet.fluidbatch.berka.processor;
 
 import com.tecacet.fluidbatch.berka.entity.AccountEntity;
 import com.tecacet.fluidbatch.berka.entity.ClientEntity;

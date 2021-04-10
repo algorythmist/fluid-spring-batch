@@ -1,4 +1,4 @@
-package com.tecacet.fluidbatch.berka.etl;
+package com.tecacet.fluidbatch.berka.processor;
 
 import com.tecacet.fluidbatch.berka.dto.BerkaClient;
 import com.tecacet.fluidbatch.berka.entity.ClientEntity;
@@ -6,7 +6,6 @@ import com.tecacet.fluidbatch.berka.entity.ClientEntity;
 import org.springframework.batch.item.ItemProcessor;
 
 public class ClientProcessor implements ItemProcessor<BerkaClient, ClientEntity> {
-
 
     @Override
     public ClientEntity process(BerkaClient berkaClient) {

@@ -1,4 +1,4 @@
-package com.tecacet.fluidbatch.berka.etl;
+package com.tecacet.fluidbatch.berka.processor;
 
 import org.springframework.batch.core.JobExecution;
 import org.springframework.batch.core.JobExecutionListener;
