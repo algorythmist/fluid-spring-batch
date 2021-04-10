@@ -7,11 +7,11 @@
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
         <version>2.4.3</version>
-        <relativePath/> <!-- lookup parent from repository -->
+        <relativePath/>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>fluid-spring-batch-examples</artifactId>
+    <artifactId>fluid-spring-batch-berka</artifactId>
 
     <properties>
         <maven.compiler.source>8</maven.compiler.source>
@@ -46,10 +46,6 @@
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
             <optional>true</optional>
-        </dependency>
-        <dependency>
-            <groupId>org.flywaydb</groupId>
-            <artifactId>flyway-core</artifactId>
         </dependency>
         <dependency>
             <groupId>org.mariadb.jdbc</groupId>
