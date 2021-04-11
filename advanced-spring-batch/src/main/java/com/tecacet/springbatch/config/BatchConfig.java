@@ -102,7 +102,7 @@ public class BatchConfig {
                 .processor(transactionProcessor)
                 .writer(transactionBatchWriter)
                 .faultTolerant()
-                .skipLimit(5)
+                .skipLimit(10)
                 .skip(UnsupportedTemporalTypeException.class)
                 .build();
     }
@@ -213,8 +213,7 @@ public class BatchConfig {
         //Set output file location
         writer.setResource(new FileSystemResource(outputFile));
 
-        //All job repetitions should "append" to same output file
-        writer.setAppendAllowed(true);
+        writer.setAppendAllowed(false);
         writer.setHeaderCallback(w -> w.write("Year,Month,Cash Flow"));
         //Name field values sequence based on object properties
         writer.setLineAggregator(new DelimitedLineAggregator<MonthlyCashFlow>() {

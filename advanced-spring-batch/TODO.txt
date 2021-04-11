@@ -1,2 +1,9 @@
+- Bean validation
+- How to access multiple data sources
 - Parallel item processors
+
+### Database for testing
+Used to have an In-memory job store which was a pain for configure.
+Now it has been removed and the recommendation is to use an in-memory
+database like https://www.h2database.com or http://hsqldb.org
 
