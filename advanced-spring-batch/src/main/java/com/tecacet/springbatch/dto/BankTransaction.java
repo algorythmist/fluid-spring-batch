@@ -34,4 +34,24 @@ public class BankTransaction {
     public BigDecimal getAmount() {
         return amount;
     }
+
+    public void setTransactionId(String transactionId) {
+        this.transactionId = transactionId;
+    }
+
+    public void setAccountId(String accountId) {
+        this.accountId = accountId;
+    }
+
+    public void setDate(LocalDate date) {
+        this.date = date;
+    }
+
+    public void setType(String type) {
+        this.type = type;
+    }
+
+    public void setAmount(BigDecimal amount) {
+        this.amount = amount;
+    }
 }

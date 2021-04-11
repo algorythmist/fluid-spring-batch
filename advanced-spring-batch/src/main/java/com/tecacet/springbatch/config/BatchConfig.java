@@ -1,6 +1,7 @@
 package com.tecacet.springbatch.config;
 
 import com.tecacet.springbatch.dto.BankTransaction;
+import com.tecacet.springbatch.jobs.BankTransactionProcessor;
 import com.tecacet.springbatch.jobs.ExecuteScriptTasklet;
 
 import org.springframework.batch.core.Job;
@@ -22,8 +23,13 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 
+import java.beans.PropertyEditor;
+import java.beans.PropertyEditorSupport;
+import java.time.LocalDate;
 import java.time.temporal.UnsupportedTemporalTypeException;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.stream.IntStream;
 
 import javax.sql.DataSource;
@@ -37,6 +43,9 @@ public class BatchConfig {
 
     @Autowired
     private ExecuteScriptTasklet executeScriptTasklet;
+
+    @Autowired
+    private BankTransactionProcessor transactionProcessor;
 
     @Bean(name = "executeScriptJob")
     Job executeScriptJob(JobBuilderFactory jobBuilderFactory,
@@ -73,7 +82,7 @@ public class BatchConfig {
         return stepBuilderFactory.get("importTransactionsStep")
                 .<BankTransaction, BankTransaction>chunk(100)
                 .reader(transactionFileReader)
-                //TODO.processor(transactionProcessor)
+                .processor(transactionProcessor)
                 .writer(transactionBatchWriter)
                 .faultTolerant()
                 .skipLimit(5)
@@ -93,6 +102,7 @@ public class BatchConfig {
         BeanWrapperFieldSetMapper<BankTransaction> fieldSetMapper = new BeanWrapperFieldSetMapper<>();
         fieldSetMapper.setStrict(false);
         fieldSetMapper.setTargetType(BankTransaction.class);
+        fieldSetMapper.setCustomEditors(getCustomEditors());
         DefaultLineMapper<BankTransaction> lineMapper = new DefaultLineMapper<>();
         lineMapper.setFieldSetMapper(fieldSetMapper);
         lineMapper.setLineTokenizer(lineTokenizer);
@@ -102,6 +112,18 @@ public class BatchConfig {
         reader.setLineMapper(lineMapper);
         reader.setResource(resource);
         return reader;
+    }
+
+    private Map<Class<?>, PropertyEditor> getCustomEditors() {
+        Map<Class<?>, PropertyEditor> editors = new HashMap<>();
+        editors.put(LocalDate.class, new PropertyEditorSupport() {
+
+            @Override
+            public void setAsText(String text) {
+                super.setValue(LocalDate.parse(text));
+            }
+        });
+        return editors;
     }
 
     @Bean
