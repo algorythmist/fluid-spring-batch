@@ -5,13 +5,17 @@ import java.time.LocalDate;
 
 public class BankTransaction {
 
+    public enum Type {
+        CREDIT, DEBIT
+    }
+
     private String transactionId;
 
     private String accountId;
 
     private LocalDate date;
 
-    private String type;
+    private Type type;
 
     private BigDecimal amount;
 
@@ -27,12 +31,16 @@ public class BankTransaction {
         return date;
     }
 
-    public String getType() {
+    public Type getType() {
         return type;
     }
 
     public BigDecimal getAmount() {
         return amount;
+    }
+
+    public String getTypeAsString() {
+        return type.toString();
     }
 
     public void setTransactionId(String transactionId) {
@@ -47,11 +55,12 @@ public class BankTransaction {
         this.date = date;
     }
 
-    public void setType(String type) {
+    public void setType(Type type) {
         this.type = type;
     }
 
     public void setAmount(BigDecimal amount) {
         this.amount = amount;
     }
+
 }

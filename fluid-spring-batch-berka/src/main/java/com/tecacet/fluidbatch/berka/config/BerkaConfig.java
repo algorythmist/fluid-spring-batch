@@ -107,12 +107,8 @@ public class BerkaConfig {
                 "select *", "from trans", "date");
     }
 
-
-
     /**
      * Generic writer for any JPA entity
-     *
-     * @return
      */
     @SuppressWarnings("rawtypes")
     @Bean

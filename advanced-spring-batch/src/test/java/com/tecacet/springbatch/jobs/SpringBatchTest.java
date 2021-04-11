@@ -2,6 +2,8 @@ package com.tecacet.springbatch.jobs;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import com.sun.deploy.ref.AppRef;
+import com.tecacet.springbatch.dao.BankTransactionDao;
 import com.tecacet.springbatch.dto.BankTransaction;
 
 import org.junit.jupiter.api.Test;
@@ -18,7 +20,6 @@ import org.springframework.batch.core.repository.JobInstanceAlreadyCompleteExcep
 import org.springframework.batch.core.repository.JobRestartException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.test.context.ActiveProfiles;
@@ -37,7 +38,7 @@ public class SpringBatchTest {
     private JobLauncher jobLauncher;
 
     @Autowired
-    private JdbcTemplate jdbcTemplate;
+    private BankTransactionDao bankTransactionDao;
 
     @Autowired
     private Job executeScriptJob;
@@ -49,7 +50,7 @@ public class SpringBatchTest {
     void testExecuteScriptJob() throws Exception {
         JobParametersBuilder builder = new JobParametersBuilder();
         JobParameters parameters1 = builder
-                .addString("scriptFilename","create_transaction_table.sql")
+                .addString("scriptFilename", "create_transaction_table.sql")
                 .toJobParameters();
         JobExecution execution = jobLauncher.run(executeScriptJob, parameters1);
         System.out.println(execution);
@@ -84,25 +85,12 @@ public class SpringBatchTest {
         assertEquals(4, stepExecution.getCommitCount());
         assertEquals(ExitStatus.COMPLETED, stepExecution.getExitStatus());
 
-        String sql = "SELECT * FROM BANK_TRANSACTION";
-
-        List<BankTransaction> transactions = jdbcTemplate.query(
-                sql,
-                new RowMapper<BankTransaction>() {
-                    @Override
-                    public BankTransaction mapRow(ResultSet resultSet, int i) throws SQLException {
-                        BankTransaction bankTransaction = new BankTransaction();
-                        bankTransaction.setTransactionId(resultSet.getString("transaction_id"));
-                        bankTransaction.setAccountId(resultSet.getString("account_id"));
-                        bankTransaction.setAmount(resultSet.getBigDecimal("transaction_amount"));
-                        bankTransaction.setType(resultSet.getString("transaction_type"));
-                        bankTransaction.setDate(LocalDate.parse(resultSet.getString("transaction_date")));
-                        return bankTransaction;
-                    }
-                });
-                assertEquals(339, transactions.size());
-
-                //TODO set correcty populated
-
+        List<BankTransaction> transactions = bankTransactionDao.findByAccountId("2504");
+        assertEquals(339, transactions.size());
+        BankTransaction transaction = transactions.get(42);
+        assertEquals("2504", transaction.getAccountId());
+        assertEquals(BankTransaction.Type.DEBIT, transaction.getType());
+        assertEquals(LocalDate.of(1994, 9, 5), transaction.getDate());
+        assertEquals(1930.0, transaction.getAmount().doubleValue(), 0.0001);
     }
 }

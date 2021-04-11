@@ -34,6 +34,7 @@ and put them in a flyway script.
 
 ### Job flow
 
+- Instance validation
 - When/how to skip failed instances
 - How to set chunk size for commits
 - How to access multiple data sources

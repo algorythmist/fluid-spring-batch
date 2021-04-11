@@ -10,8 +10,11 @@ import org.springframework.batch.core.configuration.annotation.EnableBatchProces
 import org.springframework.batch.core.configuration.annotation.JobBuilderFactory;
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
 import org.springframework.batch.core.configuration.annotation.StepScope;
+import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.database.JdbcBatchItemWriter;
+import org.springframework.batch.item.database.Order;
 import org.springframework.batch.item.database.builder.JdbcBatchItemWriterBuilder;
+import org.springframework.batch.item.database.builder.JdbcPagingItemReaderBuilder;
 import org.springframework.batch.item.file.FlatFileItemReader;
 import org.springframework.batch.item.file.mapping.BeanWrapperFieldSetMapper;
 import org.springframework.batch.item.file.mapping.DefaultLineMapper;
@@ -22,12 +25,14 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
+import org.springframework.jdbc.core.BeanPropertyRowMapper;
 
 import java.beans.PropertyEditor;
 import java.beans.PropertyEditorSupport;
 import java.time.LocalDate;
 import java.time.temporal.UnsupportedTemporalTypeException;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.IntStream;
@@ -130,7 +135,7 @@ public class BatchConfig {
     @StepScope
     JdbcBatchItemWriter<BankTransaction> transactionBatchWriter(@Value("#{jobParameters['tableName']}") String tableName) {
         String[] columns = {"transaction_id", "account_id", "transaction_type", "transaction_date", "transaction_amount"};
-        String[] properties = {"transactionId", "accountId", "type", "date", "amount"};
+        String[] properties = {"transactionId", "accountId", "typeAsString", "date", "amount"};
         return new JdbcBatchItemWriterBuilder()
                 .beanMapped()
                 .sql(buildInsertSql(tableName, columns, properties))
@@ -146,6 +151,29 @@ public class BatchConfig {
                 ") VALUES (" +
                 String.join(",", Arrays.stream(properties).map(p -> ":" + p).toArray(String[]::new)) +
                 ")";
+    }
+
+    @Bean
+    ItemReader<BankTransaction> transactionItemReader() {
+        return buildReader(BankTransaction.class,
+                "select *",
+                "from bank_transaction",
+                "where account_id = 2504", //TODO: param
+                "date");
+    }
+
+    private <I> ItemReader<I> buildReader(Class<I> clazz,
+            String select, String from,String where,  String sortColumn) {
+        return new JdbcPagingItemReaderBuilder<I>()
+                .name(clazz.getName() + "Reader")
+                .dataSource(dataSource)
+                .pageSize(5000)
+                .selectClause(select)
+                .fromClause(from)
+                .whereClause(where)
+                .sortKeys(Collections.singletonMap(sortColumn, Order.DESCENDING))
+                .rowMapper(new BeanPropertyRowMapper<>(clazz))
+                .build();
     }
 
 }
