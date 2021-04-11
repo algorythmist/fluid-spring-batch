@@ -1,10 +1,10 @@
 package com.tecacet.springbatch.jobs;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
-import com.sun.deploy.ref.AppRef;
 import com.tecacet.springbatch.dao.BankTransactionDao;
-import com.tecacet.springbatch.dto.BankTransaction;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.batch.core.ExitStatus;
@@ -20,19 +20,14 @@ import org.springframework.batch.core.repository.JobInstanceAlreadyCompleteExcep
 import org.springframework.batch.core.repository.JobRestartException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.RowMapper;
 import org.springframework.test.context.ActiveProfiles;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
 @SpringBootTest
 @ActiveProfiles("test")
-public class SpringBatchTest {
+public class SimpleBatchJobTest {
 
     @Autowired
     private JobLauncher jobLauncher;
@@ -42,9 +37,6 @@ public class SpringBatchTest {
 
     @Autowired
     private Job executeScriptJob;
-
-    @Autowired
-    private Job transactionImportJob;
 
     @Test
     void testExecuteScriptJob() throws Exception {
@@ -61,38 +53,38 @@ public class SpringBatchTest {
         assertEquals(ExitStatus.COMPLETED, execution.getExitStatus());
         assertEquals(ExitStatus.COMPLETED, stepExecution.getExitStatus());
 
-        //TODO: demo how this is not rerunnable. Demo how to make rerunnable
+        //Note that rerunning the job fails
+        try {
+            JobParameters parameters2 = new JobParametersBuilder()
+                    .addString("scriptFilename", "create_transaction_table.sql")
+                    .toJobParameters();
+            jobLauncher.run(executeScriptJob, parameters2);
+            fail();
+        } catch (JobInstanceAlreadyCompleteException e) {
+            String message = e.getMessage();
+            assertTrue(message.contains("A job instance already exists and is complete for parameters="));
+        }
     }
 
     @Test
-    void testTransactionImport()
-            throws JobInstanceAlreadyCompleteException, JobExecutionAlreadyRunningException, JobParametersInvalidException, JobRestartException {
+    public void testRerunable()
+            throws JobParametersInvalidException, JobExecutionAlreadyRunningException, JobRestartException, JobInstanceAlreadyCompleteException {
         JobParametersBuilder builder = new JobParametersBuilder();
-        JobParameters parameters = builder
+        JobParameters parameters1 = builder
                 .addString("scriptFilename", "create_transaction_table.sql")
-                .addString("filename", "account_2504.csv")
-                .addString("tableName", "bank_transaction")
-                .addString("accountId", "2504")
-                .addString("outputFile", "cash_flow.csv")
+                .addLong("currentTime", System.currentTimeMillis())
                 .toJobParameters();
-        JobExecution execution = jobLauncher.run(transactionImportJob, parameters);
-        assertEquals(ExitStatus.COMPLETED, execution.getExitStatus());
-        List<StepExecution> stepExecutions = new ArrayList<>(execution.getStepExecutions());
-        assertEquals(3, stepExecutions.size());
-        StepExecution stepExecution = stepExecutions.get(1);
-        assertEquals(ExitStatus.COMPLETED, stepExecution.getExitStatus());
-        assertEquals(340, stepExecution.getReadCount());
-        assertEquals(339, stepExecution.getWriteCount());
-        assertEquals(1, stepExecution.getSkipCount());
-        assertEquals(4, stepExecution.getCommitCount());
-        assertEquals(ExitStatus.COMPLETED, stepExecution.getExitStatus());
+        JobExecution execution1 = jobLauncher.run(executeScriptJob, parameters1);
+        assertEquals(ExitStatus.COMPLETED, execution1.getExitStatus());
 
-        List<BankTransaction> transactions = bankTransactionDao.findByAccountId("2504");
-        assertEquals(339, transactions.size());
-        BankTransaction transaction = transactions.get(42);
-        assertEquals("2504", transaction.getAccountId());
-        assertEquals(BankTransaction.Type.DEBIT, transaction.getType());
-        assertEquals(LocalDate.of(1994, 9, 5), transaction.getDate());
-        assertEquals(1930.0, transaction.getAmount().doubleValue(), 0.0001);
+        JobParameters parameters2 = new JobParametersBuilder()
+                .addString("scriptFilename", "create_transaction_table.sql")
+                .addLong("currentTime", System.currentTimeMillis())
+                .toJobParameters();
+        JobExecution execution2 = jobLauncher.run(executeScriptJob, parameters2);
+        assertEquals(ExitStatus.COMPLETED, execution2.getExitStatus());
+
     }
+
+
 }
