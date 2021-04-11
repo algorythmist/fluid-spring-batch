@@ -80,7 +80,6 @@ public class BatchConfig {
                 .sql(InsertSqlBuilder.buildInsertSql(tableName, columns, properties))
                 .dataSource(dataSource)
                 .build();
-
     }
 
     @Bean

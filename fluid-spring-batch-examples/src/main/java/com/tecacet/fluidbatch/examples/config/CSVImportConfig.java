@@ -1,7 +1,7 @@
 package com.tecacet.fluidbatch.examples.config;
 
 import com.tecacet.fluidbatch.FlatFileReaderBuilder;
-import com.tecacet.fluidbatch.examples.dto.BerkaTransaction;
+import com.tecacet.fluidbatch.examples.dto.BankTransaction;
 
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
@@ -28,13 +28,13 @@ public class CSVImportConfig {
     JobBuilderFactory jobBuilderFactory;
 
     @Bean
-    ItemReader<BerkaTransaction> itemReader() {
+    ItemReader<BankTransaction> itemReader() {
         Map<String, String> headerMap = new HashMap<>();
         headerMap.put("trans_id", "transId");
         headerMap.put("type", "type");
         headerMap.put("amount", "amount");
         headerMap.put("date", "date");
-        return FlatFileReaderBuilder.getInstance(BerkaTransaction.class)
+        return FlatFileReaderBuilder.getInstance(BankTransaction.class)
                 .setHeaderMap(headerMap)
                 .setResource("account_2504.csv")
                 .registerConverter(LocalDate.class, LocalDate::parse)
@@ -42,8 +42,8 @@ public class CSVImportConfig {
     }
 
     @Bean
-    Step importStep(ItemReader<BerkaTransaction> itemReader) {
-        return stepBuilderFactory.get("importStep").<BerkaTransaction, BerkaTransaction>chunk(100)
+    Step importStep(ItemReader<BankTransaction> itemReader) {
+        return stepBuilderFactory.get("importStep").<BankTransaction, BankTransaction>chunk(100)
                 .reader(itemReader)
                 .writer(System.out::println).build();
     }

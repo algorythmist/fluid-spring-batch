@@ -6,7 +6,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 
 @Data
-public class BerkaTransaction {
+public class BankTransaction {
 
     private long transId;
     private long accountId;

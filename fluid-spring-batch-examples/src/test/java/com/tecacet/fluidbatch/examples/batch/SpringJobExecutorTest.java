@@ -32,6 +32,7 @@ class SpringJobExecutorTest {
 
     @Test
     void executeMissingJob() {
+
         try {
             jobExecutor.execute("missingJob",
                     Collections.singletonMap("tableName", "demo_transaction"));

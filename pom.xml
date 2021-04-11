@@ -9,6 +9,7 @@
         <module>fluid-spring-batch-framework</module>
         <module>fluid-spring-batch-examples</module>
         <module>fluid-spring-batch-berka</module>
+        <module>advanced-spring-batch</module>
     </modules>
 
     <groupId>com.tecacet</groupId>
