@@ -72,11 +72,13 @@ public class SpringBatchTest {
                 .addString("scriptFilename", "create_transaction_table.sql")
                 .addString("filename", "account_2504.csv")
                 .addString("tableName", "bank_transaction")
+                .addString("accountId", "2504")
+                .addString("outputFile", "cash_flow.csv")
                 .toJobParameters();
         JobExecution execution = jobLauncher.run(transactionImportJob, parameters);
         assertEquals(ExitStatus.COMPLETED, execution.getExitStatus());
         List<StepExecution> stepExecutions = new ArrayList<>(execution.getStepExecutions());
-        assertEquals(2, stepExecutions.size());
+        assertEquals(3, stepExecutions.size());
         StepExecution stepExecution = stepExecutions.get(1);
         assertEquals(ExitStatus.COMPLETED, stepExecution.getExitStatus());
         assertEquals(340, stepExecution.getReadCount());

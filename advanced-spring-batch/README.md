@@ -24,7 +24,7 @@ and put them in a flyway script.
 
 ### Runtime Parameters
 
-- How to access parameters in steps
+- How to access parameters in steps (Use @StepScope)
 - How to make jobs rerunnable
 
 ### File imports
@@ -38,6 +38,7 @@ and put them in a flyway script.
 - When/how to skip failed instances
 - How to set chunk size for commits
 - How to access multiple data sources
+- Map/Reduce
 
 ### Database for testing
 Used to have an In-memory job store which was a pain for configure.

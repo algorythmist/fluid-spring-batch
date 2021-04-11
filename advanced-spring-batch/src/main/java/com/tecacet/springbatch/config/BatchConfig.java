@@ -1,7 +1,10 @@
 package com.tecacet.springbatch.config;
 
+import com.tecacet.springbatch.dao.BankTransactionRowMapper;
 import com.tecacet.springbatch.dto.BankTransaction;
+import com.tecacet.springbatch.dto.MonthlyCashFlow;
 import com.tecacet.springbatch.jobs.BankTransactionProcessor;
+import com.tecacet.springbatch.jobs.CashFlowProcessor;
 import com.tecacet.springbatch.jobs.ExecuteScriptTasklet;
 
 import org.springframework.batch.core.Job;
@@ -11,21 +14,25 @@ import org.springframework.batch.core.configuration.annotation.JobBuilderFactory
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
 import org.springframework.batch.core.configuration.annotation.StepScope;
 import org.springframework.batch.item.ItemReader;
+import org.springframework.batch.item.ItemWriter;
 import org.springframework.batch.item.database.JdbcBatchItemWriter;
 import org.springframework.batch.item.database.Order;
 import org.springframework.batch.item.database.builder.JdbcBatchItemWriterBuilder;
 import org.springframework.batch.item.database.builder.JdbcPagingItemReaderBuilder;
 import org.springframework.batch.item.file.FlatFileItemReader;
+import org.springframework.batch.item.file.FlatFileItemWriter;
 import org.springframework.batch.item.file.mapping.BeanWrapperFieldSetMapper;
 import org.springframework.batch.item.file.mapping.DefaultLineMapper;
+import org.springframework.batch.item.file.transform.BeanWrapperFieldExtractor;
+import org.springframework.batch.item.file.transform.DelimitedLineAggregator;
 import org.springframework.batch.item.file.transform.DelimitedLineTokenizer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
-import org.springframework.jdbc.core.BeanPropertyRowMapper;
 
 import java.beans.PropertyEditor;
 import java.beans.PropertyEditorSupport;
@@ -52,6 +59,9 @@ public class BatchConfig {
     @Autowired
     private BankTransactionProcessor transactionProcessor;
 
+    @Autowired
+    private CashFlowProcessor cashFlowProcessor;
+
     @Bean(name = "executeScriptJob")
     Job executeScriptJob(JobBuilderFactory jobBuilderFactory,
             Step executeScriptStep) {
@@ -72,10 +82,12 @@ public class BatchConfig {
     @Bean
     Job transactionImportJob(JobBuilderFactory jobBuilderFactory,
             Step executeScriptStep,
-            Step importTransactionsStep) {
+            Step importTransactionsStep,
+            Step aggregateTransactionsStep) {
         return jobBuilderFactory.get("transactionImportJob")
                 .flow(executeScriptStep)
                 .next(importTransactionsStep)
+                .next(aggregateTransactionsStep)
                 .end()
                 .build();
     }
@@ -154,26 +166,68 @@ public class BatchConfig {
     }
 
     @Bean
-    ItemReader<BankTransaction> transactionItemReader() {
-        return buildReader(BankTransaction.class,
-                "select *",
-                "from bank_transaction",
-                "where account_id = 2504", //TODO: param
-                "date");
+    Step aggregateTransactionsStep(StepBuilderFactory stepBuilderFactory,
+            ItemReader<BankTransaction> transactionItemReader,
+            ItemWriter<MonthlyCashFlow> cashFlowWriter) {
+        return stepBuilderFactory.get("importTransactionsStep")
+                .<BankTransaction, MonthlyCashFlow>chunk(100)
+                .reader(transactionItemReader)
+                .processor(cashFlowProcessor)
+                .writer(cashFlowWriter)
+                .faultTolerant()
+                .skipLimit(5)
+                .skip(UnsupportedTemporalTypeException.class)
+                .build();
     }
 
-    private <I> ItemReader<I> buildReader(Class<I> clazz,
-            String select, String from,String where,  String sortColumn) {
-        return new JdbcPagingItemReaderBuilder<I>()
-                .name(clazz.getName() + "Reader")
+    @Bean
+    @StepScope
+    ItemReader<BankTransaction> transactionItemReader(@Value("#{jobParameters['accountId']}") String accountId) {
+        return buildReader(
+                "select *",
+                "from bank_transaction",
+                "where account_id = " + accountId,
+                "transaction_date");
+    }
+
+    private ItemReader<BankTransaction> buildReader(
+            String select, String from, String where, String sortColumn) {
+        return new JdbcPagingItemReaderBuilder<BankTransaction>()
+                .name("TransactionReader")
                 .dataSource(dataSource)
-                .pageSize(5000)
+                .pageSize(50)
                 .selectClause(select)
                 .fromClause(from)
                 .whereClause(where)
                 .sortKeys(Collections.singletonMap(sortColumn, Order.DESCENDING))
-                .rowMapper(new BeanPropertyRowMapper<>(clazz))
+                .rowMapper(new BankTransactionRowMapper())
                 .build();
     }
 
+    @Bean
+    @StepScope
+    public FlatFileItemWriter<MonthlyCashFlow> cashFlowWriter(@Value("#{jobParameters['outputFile']}") String outputFile) {
+        //Create writer instance
+        FlatFileItemWriter<MonthlyCashFlow> writer = new FlatFileItemWriter<>();
+
+        //Set output file location
+        writer.setResource(new FileSystemResource(outputFile));
+
+        //All job repetitions should "append" to same output file
+        writer.setAppendAllowed(true);
+        writer.setHeaderCallback(w -> w.write("Year,Month,Cash Flow"));
+        //Name field values sequence based on object properties
+        writer.setLineAggregator(new DelimitedLineAggregator<MonthlyCashFlow>() {
+            {
+
+                setDelimiter(",");
+                setFieldExtractor(new BeanWrapperFieldExtractor<MonthlyCashFlow>() {
+                    {
+                        setNames(new String[] {"year", "month", "netAmount"});
+                    }
+                });
+            }
+        });
+        return writer;
+    }
 }

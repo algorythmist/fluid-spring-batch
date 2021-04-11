@@ -3,13 +3,17 @@ package com.tecacet.springbatch.jobs;
 import com.tecacet.springbatch.dto.BankTransaction;
 import com.tecacet.springbatch.dto.MonthlyCashFlow;
 
+import org.springframework.batch.core.configuration.annotation.StepScope;
 import org.springframework.batch.item.ItemProcessor;
+import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
+@Component
+@StepScope
 public class CashFlowProcessor implements ItemProcessor<BankTransaction, MonthlyCashFlow> {
 
     private LocalDate lastDate = null;
