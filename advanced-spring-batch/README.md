@@ -37,7 +37,7 @@ JobExecution execution = jobLauncher.run(transactionImportJob, parameters);
 To access the parameter in a Tasklet 
 
 ```java
- @Override
+@Override
 public RepeatStatus execute(StepContribution stepContribution, ChunkContext chunkContext) throws Exception {
     String scriptFilename = chunkContext.getStepContext().getStepExecution()
                 .getJobParameters().getString("scriptFilename");
@@ -102,9 +102,9 @@ FileSystemResource vs ClasspathResource
 ### File Exports
 How to set a header and specify properties
 ```java
-  @Bean
-    @StepScope
-    public FlatFileItemWriter<MonthlyCashFlow> cashFlowWriter(@Value("#{jobParameters['outputFile']}") String outputFile) {
+@Bean
+@StepScope
+public FlatFileItemWriter<MonthlyCashFlow> cashFlowWriter(@Value("#{jobParameters['outputFile']}") String outputFile) {
         //Create writer instance
         FlatFileItemWriter<MonthlyCashFlow> writer = new FlatFileItemWriter<>();
 
@@ -126,7 +126,7 @@ How to set a header and specify properties
             }
         });
         return writer;
-    }
+}
 ```
 
 
@@ -150,8 +150,14 @@ Step importTransactionsStep(StepBuilderFactory stepBuilderFactory,
                 .build();
 }
 ```
-- Map/Reduce
 
 
+### Aggregate results of Item Processors
+    
+Spring Batch is not really intended for Map/Reduce functionality and there are plenty of other tools that are better suitable for it. However, it is often useful for a job to produce an aggregate of the items produced by the item processors. The Writer receives a list of inputs, but it is not a good candidate for aggregation since the items are bunched by chunk size and not any specific business logic.
+Here is a recipe for creating an Item Processor that aggregates individual results:
 
-
+    1. First make sure that the Reader reads the data in the order that is supposed to be processed 
+    2. Write an item processor that maintains state so that it knows what has been processed so far
+    3. While the aggregate is not complete, keep returning null. This will cause the result to be skipped and not sent to the writer
+    4. When the aggregate is complete, send the result.

@@ -1,5 +1,7 @@
-- Bean validation
+- Pass information from Step to Step
+- Chain item processors
 - How to access multiple data sources
+- Bean validation
 - Parallel item processors
 
 ### Database for testing
