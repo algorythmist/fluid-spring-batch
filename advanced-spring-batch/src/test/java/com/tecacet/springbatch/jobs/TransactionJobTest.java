@@ -1,7 +1,7 @@
 package com.tecacet.springbatch.jobs;
 
-import static org.junit.Assert.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.tecacet.springbatch.dao.BankTransactionDao;
 import com.tecacet.springbatch.dto.BankTransaction;

@@ -51,6 +51,12 @@ import javax.sql.DataSource;
 public class BatchConfig {
 
     @Autowired
+    private JobBuilderFactory jobBuilderFactory;
+
+    @Autowired
+    private StepBuilderFactory stepBuilderFactory;
+
+    @Autowired
     private DataSource dataSource;
 
     @Autowired
@@ -63,8 +69,7 @@ public class BatchConfig {
     private CashFlowProcessor cashFlowProcessor;
 
     @Bean(name = "executeScriptJob")
-    Job executeScriptJob(JobBuilderFactory jobBuilderFactory,
-            Step executeScriptStep) {
+    Job executeScriptJob(Step executeScriptStep) {
         return jobBuilderFactory.get("executeScriptJob")
                 .flow(executeScriptStep)
                 .end()
@@ -72,7 +77,7 @@ public class BatchConfig {
     }
 
     @Bean
-    Step executeScriptStep(StepBuilderFactory stepBuilderFactory) {
+    Step executeScriptStep() {
         return stepBuilderFactory.get("executeScriptTasklet")
                 .tasklet(executeScriptTasklet)
                 .build();
@@ -80,8 +85,7 @@ public class BatchConfig {
 
 
     @Bean
-    Job transactionImportJob(JobBuilderFactory jobBuilderFactory,
-            Step executeScriptStep,
+    Job transactionImportJob(Step executeScriptStep,
             Step importTransactionsStep,
             Step aggregateTransactionsStep) {
         return jobBuilderFactory.get("transactionImportJob")
@@ -93,8 +97,7 @@ public class BatchConfig {
     }
 
     @Bean
-    Step importTransactionsStep(StepBuilderFactory stepBuilderFactory,
-            FlatFileItemReader<BankTransaction> transactionFileReader,
+    Step importTransactionsStep(FlatFileItemReader<BankTransaction> transactionFileReader,
             JdbcBatchItemWriter<BankTransaction> transactionBatchWriter) {
         return stepBuilderFactory.get("importTransactionsStep")
                 .<BankTransaction, BankTransaction>chunk(100)
@@ -111,7 +114,6 @@ public class BatchConfig {
     @StepScope
     FlatFileItemReader<BankTransaction> transactionFileReader(@Value("#{jobParameters['filename']}") String filename) {
         String[] properties = new String[] {"X", "transactionId", "accountId", "date", "type", "X", "amount"};
-
         DelimitedLineTokenizer lineTokenizer = new DelimitedLineTokenizer();
         lineTokenizer.setDelimiter(",");
         lineTokenizer.setIncludedFields(IntStream.range(0, properties.length).toArray());
@@ -166,8 +168,7 @@ public class BatchConfig {
     }
 
     @Bean
-    Step aggregateTransactionsStep(StepBuilderFactory stepBuilderFactory,
-            ItemReader<BankTransaction> transactionItemReader,
+    Step aggregateTransactionsStep(ItemReader<BankTransaction> transactionItemReader,
             ItemWriter<MonthlyCashFlow> cashFlowWriter) {
         return stepBuilderFactory.get("importTransactionsStep")
                 .<BankTransaction, MonthlyCashFlow>chunk(100)
@@ -190,8 +191,7 @@ public class BatchConfig {
                 "transaction_date");
     }
 
-    private ItemReader<BankTransaction> buildReader(
-            String select, String from, String where, String sortColumn) {
+    private ItemReader<BankTransaction> buildReader(String select, String from, String where, String sortColumn) {
         return new JdbcPagingItemReaderBuilder<BankTransaction>()
                 .name("TransactionReader")
                 .dataSource(dataSource)
@@ -206,7 +206,7 @@ public class BatchConfig {
 
     @Bean
     @StepScope
-    public FlatFileItemWriter<MonthlyCashFlow> cashFlowWriter(@Value("#{jobParameters['outputFile']}") String outputFile) {
+    FlatFileItemWriter<MonthlyCashFlow> cashFlowWriter(@Value("#{jobParameters['outputFile']}") String outputFile) {
         //Create writer instance
         FlatFileItemWriter<MonthlyCashFlow> writer = new FlatFileItemWriter<>();
 
@@ -228,5 +228,20 @@ public class BatchConfig {
             }
         });
         return writer;
+    }
+
+    @Bean
+    Job badFileJob(Step badFileStep) {
+        return jobBuilderFactory.get("badFileJob").start(badFileStep).build();
+    }
+
+    @Bean
+    Step badFileStep(FlatFileItemReader<BankTransaction> transactionFileReader) {
+        return stepBuilderFactory.get("badFileStep")
+                .<BankTransaction, BankTransaction>chunk(10)
+                .reader(transactionFileReader)
+                .writer(list -> {
+                })
+                .build();
     }
 }

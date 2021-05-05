@@ -12,12 +12,9 @@ import org.springframework.batch.core.Job;
 import org.springframework.batch.core.JobExecution;
 import org.springframework.batch.core.JobParameters;
 import org.springframework.batch.core.JobParametersBuilder;
-import org.springframework.batch.core.JobParametersInvalidException;
 import org.springframework.batch.core.StepExecution;
 import org.springframework.batch.core.launch.JobLauncher;
-import org.springframework.batch.core.repository.JobExecutionAlreadyRunningException;
 import org.springframework.batch.core.repository.JobInstanceAlreadyCompleteException;
-import org.springframework.batch.core.repository.JobRestartException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
@@ -45,7 +42,6 @@ public class SimpleBatchJobTest {
                 .addString("scriptFilename", "create_transaction_table.sql")
                 .toJobParameters();
         JobExecution execution = jobLauncher.run(executeScriptJob, parameters1);
-        System.out.println(execution);
         List<StepExecution> stepExecutions = new ArrayList<>(execution.getStepExecutions());
         assertEquals(1, stepExecutions.size());
         StepExecution stepExecution = stepExecutions.get(0);
@@ -67,8 +63,7 @@ public class SimpleBatchJobTest {
     }
 
     @Test
-    public void testRerunable()
-            throws JobParametersInvalidException, JobExecutionAlreadyRunningException, JobRestartException, JobInstanceAlreadyCompleteException {
+    public void testRerunable() throws Exception {
         JobParametersBuilder builder = new JobParametersBuilder();
         JobParameters parameters1 = builder
                 .addString("scriptFilename", "create_transaction_table.sql")
