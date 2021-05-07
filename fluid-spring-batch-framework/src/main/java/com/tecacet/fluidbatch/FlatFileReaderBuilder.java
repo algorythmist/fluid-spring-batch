@@ -110,4 +110,20 @@ public class FlatFileReaderBuilder<T> {
         reader.setLineMapper(lineMapper);
         return reader;
     }
+
+    public FlatFileItemReader<T> getReader() {
+        return reader;
+    }
+
+    public DelimitedLineTokenizer getLineTokenizer() {
+        return lineTokenizer;
+    }
+
+    public DefaultLineMapper<T> getLineMapper() {
+        return lineMapper;
+    }
+
+    public BeanWrapperFieldSetMapper<T> getFieldSetMapper() {
+        return fieldSetMapper;
+    }
 }

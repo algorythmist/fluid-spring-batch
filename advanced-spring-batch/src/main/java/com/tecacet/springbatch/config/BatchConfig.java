@@ -212,21 +212,14 @@ public class BatchConfig {
 
         //Set output file location
         writer.setResource(new FileSystemResource(outputFile));
-
         writer.setAppendAllowed(false);
         writer.setHeaderCallback(w -> w.write("Year,Month,Cash Flow"));
-        //Name field values sequence based on object properties
-        writer.setLineAggregator(new DelimitedLineAggregator<MonthlyCashFlow>() {
-            {
-
-                setDelimiter(",");
-                setFieldExtractor(new BeanWrapperFieldExtractor<MonthlyCashFlow>() {
-                    {
-                        setNames(new String[] {"year", "month", "netAmount"});
-                    }
-                });
-            }
-        });
+        BeanWrapperFieldExtractor<MonthlyCashFlow> fieldExtractor = new BeanWrapperFieldExtractor<>();
+        fieldExtractor.setNames(new String[] {"year", "month", "netAmount"});
+        DelimitedLineAggregator<MonthlyCashFlow> lineAggregator = new DelimitedLineAggregator<>();
+        lineAggregator.setDelimiter(",");
+        lineAggregator.setFieldExtractor(fieldExtractor);
+        writer.setLineAggregator(lineAggregator);
         return writer;
     }
 
@@ -240,8 +233,7 @@ public class BatchConfig {
         return stepBuilderFactory.get("badFileStep")
                 .<BankTransaction, BankTransaction>chunk(10)
                 .reader(transactionFileReader)
-                .writer(list -> {
-                })
+                .writer(list -> {  })
                 .build();
     }
 }

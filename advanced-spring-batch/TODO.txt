@@ -7,6 +7,7 @@
 - How to access multiple data sources
 - Bean validation
 - Parallel item processors
+- Preserve line numbers from input file
 
 ### Database for testing
 Used to have an In-memory job store which was a pain for configure.
