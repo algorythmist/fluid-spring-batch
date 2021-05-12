@@ -14,6 +14,9 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 
+/**
+ * Tasklet that executes a Jdbc Script stored in a file
+ */
 @Component
 public class ExecuteScriptTasklet implements Tasklet {
 
@@ -31,7 +34,7 @@ public class ExecuteScriptTasklet implements Tasklet {
         String scriptFilename = chunkContext.getStepContext().getStepExecution()
                 .getJobParameters().getString("scriptFilename");
         if (scriptFilename == null) {
-            throw new Exception("Parameter 'scriptFilename' is not defined.");
+            throw new IOException("Parameter 'scriptFilename' is not defined.");
         }
         ClassLoader classLoader = this.getClass().getClassLoader();
         File file = new File(classLoader.getResource(scriptFilename).getFile());

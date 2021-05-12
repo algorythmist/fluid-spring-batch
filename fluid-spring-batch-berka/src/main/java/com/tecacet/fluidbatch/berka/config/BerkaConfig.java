@@ -64,20 +64,20 @@ public class BerkaConfig {
     Job clientImportJob() {
         return buildBerkaTransformation("clientImport",
                 clientItemReader(),
-                new ClientProcessor());
+                new ClientProcessor(), 5000);
 
     }
 
     @Bean
     Job accountImportJob() {
         return buildBerkaTransformation("accountImport",
-                accountItemReader(), new AccountProcessor());
+                accountItemReader(), new AccountProcessor(), 5000);
     }
 
     @Bean
     Job clientAccountImportJob() {
         return buildBerkaTransformation("clientAccountImport",
-                disponentItemReader(), clientAccountProcessor);
+                disponentItemReader(), clientAccountProcessor, 5000);
     }
 
     @Bean
@@ -133,8 +133,9 @@ public class BerkaConfig {
 
     private <I, O> Job buildBerkaTransformation(String name,
             ItemReader<I> reader,
-            ItemProcessor<I, O> processor) {
-        Step step = createStep(name, reader, processor);
+            ItemProcessor<I, O> processor,
+            int chunkSize) {
+        Step step = createStep(name, reader, processor, chunkSize);
         return jobBuilderFactory.get(name + "Job")
                 .flow(step)
                 .end().build();
@@ -142,16 +143,18 @@ public class BerkaConfig {
 
     private <I, O> Step createStep(String name,
             ItemReader<I> reader,
-            ItemProcessor<I, O> processor) {
-        return createStep(name, reader, processor, null);
+            ItemProcessor<I, O> processor,
+            int chunkSize) {
+        return createStep(name, reader, processor, null, chunkSize);
     }
 
     private <I, O> Step createStep(String name,
             ItemReader<I> reader,
             ItemProcessor<I, O> processor,
-            StepExecutionListener listener) {
+            StepExecutionListener listener,
+            int chunkSize) {
         SimpleStepBuilder<I, O> stepBuilder = stepBuilderFactory.get(name)
-                .<I, O>chunk(5000)
+                .<I, O>chunk(chunkSize)
                 .reader(reader)
                 .processor(processor)
                 .writer(jpaItemWriter());
@@ -166,16 +169,20 @@ public class BerkaConfig {
     Job berkaEtlJob() {
         Step loadClients = createStep("clientImportStep",
                 clientItemReader(),
-                new ClientProcessor());
+                new ClientProcessor(),
+                5000);
         Step loadAccounts = createStep("accountImportStep",
                 accountItemReader(),
-                new AccountProcessor());
+                new AccountProcessor(),
+                5000);
         Step loadClientAccounts = createStep("clientAccountImportStep",
                 disponentItemReader(),
-                clientAccountProcessor);
+                clientAccountProcessor,
+                5000);
         Step loadTransactions = createStep("transactionImportStep",
                 transactionItemReader(),
-                transactionProcessor);
+                transactionProcessor,
+                25000);
         return jobBuilderFactory.get("berkaEtlJob")
                 .listener(new BerkaJobExecutionListener())
                 .start(loadClients)

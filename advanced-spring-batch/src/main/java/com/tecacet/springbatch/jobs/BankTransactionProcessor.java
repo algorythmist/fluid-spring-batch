@@ -6,19 +6,20 @@ import org.springframework.batch.core.configuration.annotation.StepScope;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.stereotype.Component;
 
-import java.time.temporal.UnsupportedTemporalTypeException;
+import java.math.BigDecimal;
 
 @Component
 @StepScope
 public class BankTransactionProcessor implements ItemProcessor<BankTransaction, BankTransaction> {
 
-    private int count = 0;
-
     @Override
-    public BankTransaction process(BankTransaction transaction) throws UnsupportedTemporalTypeException {
-        count++;
-        if (count == 110) {
-            throw new UnsupportedTemporalTypeException("This record failed!");
+    public BankTransaction process(BankTransaction transaction) throws IllegalArgumentException {
+        if ("BOO".equals(transaction.getBank())) {
+            return null; //Skip these transactions
+        }
+        if (transaction.getAmount().compareTo(BigDecimal.ZERO) < 0) {
+            //amount is debit or credit but cannot be negative
+            throw new IllegalArgumentException("Transaction amount cannot be negative.");
         }
         return transaction;
     }

@@ -2,12 +2,15 @@
 - Skip policy
 - demo of job that does not skip exceptions
 
+- pass information among processor invocations
 - Pass information from Step to Step
 - Chain item processors
 - How to access multiple data sources
 - Bean validation
 - Parallel item processors
 - Preserve line numbers from input file
+- When reading file, map to a property that requires more than single field to be decoded
+- When writing to a file, map to a field that requires more than a single property
 
 ### Database for testing
 Used to have an In-memory job store which was a pain for configure.

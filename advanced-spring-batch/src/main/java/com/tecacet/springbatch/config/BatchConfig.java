@@ -6,6 +6,7 @@ import com.tecacet.springbatch.dto.MonthlyCashFlow;
 import com.tecacet.springbatch.jobs.BankTransactionProcessor;
 import com.tecacet.springbatch.jobs.CashFlowProcessor;
 import com.tecacet.springbatch.jobs.ExecuteScriptTasklet;
+import com.tecacet.springbatch.jobs.TransactionImportSkipListener;
 
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
@@ -21,6 +22,7 @@ import org.springframework.batch.item.database.builder.JdbcBatchItemWriterBuilde
 import org.springframework.batch.item.database.builder.JdbcPagingItemReaderBuilder;
 import org.springframework.batch.item.file.FlatFileItemReader;
 import org.springframework.batch.item.file.FlatFileItemWriter;
+import org.springframework.batch.item.file.FlatFileParseException;
 import org.springframework.batch.item.file.mapping.BeanWrapperFieldSetMapper;
 import org.springframework.batch.item.file.mapping.DefaultLineMapper;
 import org.springframework.batch.item.file.transform.BeanWrapperFieldExtractor;
@@ -83,6 +85,15 @@ public class BatchConfig {
                 .build();
     }
 
+    @Bean
+    Job simpleTransactionImportJob(Step executeScriptStep,
+            Step importTransactionsStep) {
+        return jobBuilderFactory.get("simpleTransactionImportJob")
+                .flow(executeScriptStep)
+                .next(importTransactionsStep)
+                .end()
+                .build();
+    }
 
     @Bean
     Job transactionImportJob(Step executeScriptStep,
@@ -106,27 +117,40 @@ public class BatchConfig {
                 .writer(transactionBatchWriter)
                 .faultTolerant()
                 .skipLimit(10)
-                .skip(UnsupportedTemporalTypeException.class)
+                .skip(FlatFileParseException.class)
+                .skip(IllegalArgumentException.class)
+                .listener(new TransactionImportSkipListener())
                 .build();
     }
 
     @Bean
     @StepScope
     FlatFileItemReader<BankTransaction> transactionFileReader(@Value("#{jobParameters['filename']}") String filename) {
-        String[] properties = new String[] {"X", "transactionId", "accountId", "date", "type", "X", "amount"};
+        //The properties we want to map to the BankTransaction bean in the order they appear in the file
+        //columns that we do not wish to map are marked with X
+        String[] properties = new String[] {"X", "transactionId", "accountId", "date", "type", "X", "amount", "X", "X", "bank"};
+        //The LineTokenizer describes how to parse a line into tokens
         DelimitedLineTokenizer lineTokenizer = new DelimitedLineTokenizer();
         lineTokenizer.setDelimiter(",");
+        //The fields (columns) of the file to include. In this case same as the length of the properties
         lineTokenizer.setIncludedFields(IntStream.range(0, properties.length).toArray());
+        //The properties to map
         lineTokenizer.setNames(properties);
+        //The FieldSetMapper describes how to map tokens to bean properties
         BeanWrapperFieldSetMapper<BankTransaction> fieldSetMapper = new BeanWrapperFieldSetMapper<>();
+        //Do not complain if properties don't exist
         fieldSetMapper.setStrict(false);
         fieldSetMapper.setTargetType(BankTransaction.class);
+        //Custom Editors are used to convert Strings to the desired data type
         fieldSetMapper.setCustomEditors(getCustomEditors());
+        //A Line Mapper describes how to map lines to beans
         DefaultLineMapper<BankTransaction> lineMapper = new DefaultLineMapper<>();
         lineMapper.setFieldSetMapper(fieldSetMapper);
         lineMapper.setLineTokenizer(lineTokenizer);
+        //Where to get the file from
         Resource resource = new ClassPathResource(filename);
         FlatFileItemReader<BankTransaction> reader = new FlatFileItemReader<>();
+        //Skip first line (header)
         reader.setLinesToSkip(1);
         reader.setLineMapper(lineMapper);
         reader.setResource(resource);
@@ -233,7 +257,8 @@ public class BatchConfig {
         return stepBuilderFactory.get("badFileStep")
                 .<BankTransaction, BankTransaction>chunk(10)
                 .reader(transactionFileReader)
-                .writer(list -> {  })
+                .writer(list -> {
+                })
                 .build();
     }
 }

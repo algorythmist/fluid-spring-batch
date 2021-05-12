@@ -31,7 +31,6 @@ public class TransientDataStore {
         List<AccountEntity> accounts = accountRepository.findAll();
         this.clients = clients.stream().collect(Collectors.toMap(ClientEntity::getId, Function.identity()));
         this.accounts =  accounts.stream().collect(Collectors.toMap(AccountEntity::getId, Function.identity()));
-
     }
 
     public Map<Long, ClientEntity> getClients() {

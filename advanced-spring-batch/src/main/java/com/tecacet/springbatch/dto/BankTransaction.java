@@ -9,6 +9,7 @@ public class BankTransaction {
         CREDIT, DEBIT
     }
 
+
     private String transactionId;
 
     private String accountId;
@@ -18,6 +19,8 @@ public class BankTransaction {
     private Type type;
 
     private BigDecimal amount;
+
+    private String bank;
 
     public String getTransactionId() {
         return transactionId;
@@ -63,4 +66,7 @@ public class BankTransaction {
         this.amount = amount;
     }
 
+    public String getBank() { return bank; }
+
+    public void setBank(String bank) { this.bank = bank; }
 }

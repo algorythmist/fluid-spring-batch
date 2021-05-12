@@ -60,13 +60,13 @@ public class TransactionJobTest {
         StepExecution stepExecution = stepExecutions.get(1);
         assertEquals(ExitStatus.COMPLETED, stepExecution.getExitStatus());
         assertEquals(340, stepExecution.getReadCount());
-        assertEquals(339, stepExecution.getWriteCount());
+        assertEquals(340, stepExecution.getWriteCount());
         assertEquals(1, stepExecution.getSkipCount());
         assertEquals(4, stepExecution.getCommitCount());
         assertEquals(ExitStatus.COMPLETED, stepExecution.getExitStatus());
 
         List<BankTransaction> transactions = bankTransactionDao.findByAccountId(accountId);
-        assertEquals(339, transactions.size());
+        assertEquals(340, transactions.size());
         BankTransaction transaction = transactions.get(42);
         assertEquals(accountId, transaction.getAccountId());
         assertEquals(BankTransaction.Type.DEBIT, transaction.getType());
