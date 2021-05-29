@@ -25,5 +25,4 @@ public class TransactionImportSkipListener implements SkipListener<BankTransacti
         logger.warn("Bean skipped on process", throwable);
     }
 
-
 }

@@ -21,7 +21,7 @@ public class CashFlowProcessor implements ItemProcessor<BankTransaction, Monthly
 
     @Override
     public MonthlyCashFlow process(BankTransaction transaction) {
-        if (lastDate == null || sameMonth(transaction.getDate())) {
+        if (lastDate == null || isSameMonth(transaction.getDate())) {
             monthlyGroup.add(transaction);
             lastDate = transaction.getDate();
             return null;
@@ -45,7 +45,7 @@ public class CashFlowProcessor implements ItemProcessor<BankTransaction, Monthly
                 transaction.getAmount().negate();
     }
 
-    private boolean sameMonth(LocalDate date) {
+    private boolean isSameMonth(LocalDate date) {
         return lastDate.getMonthValue() == date.getMonthValue() && lastDate.getYear() == date.getYear();
     }
 }
