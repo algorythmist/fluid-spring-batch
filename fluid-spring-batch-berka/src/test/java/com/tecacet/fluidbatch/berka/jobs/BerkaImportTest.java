@@ -18,7 +18,9 @@ import org.springframework.test.annotation.DirtiesContext;
 
 import java.time.LocalDate;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @SpringBootTest
 @DirtiesContext
@@ -39,12 +41,14 @@ class BerkaImportTest {
                 jobExecutor.execute("clientImportJob", Collections.emptyMap());
         assertEquals(BatchStatus.COMPLETED, jobExecution.getStatus());
 
-        List<ClientEntity> clients = clientRepository.findAll();
+        List<ClientEntity> clients = clientRepository.findAll()
+                .stream().sorted(Comparator.comparing(ClientEntity::getBirthDate))
+                .collect(Collectors.toList());
         assertEquals(5369, clients.size());
         ClientEntity client = clients.get(100);
         assertEquals(ClientEntity.Gender.MALE, client.getGender());
-        assertEquals(LocalDate.of(1956, 1, 1), client.getBirthDate());
-        assertEquals("Chrudim", client.getDistrict());
+        assertEquals(LocalDate.of(1919, 9, 23), client.getBirthDate());
+        assertEquals("Frydek - Mistek", client.getDistrict());
     }
 
     @Test
